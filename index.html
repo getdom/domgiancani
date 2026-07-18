@@ -223,6 +223,7 @@
     .shelf { grid-template-columns: repeat(2, 1fr); row-gap: 2.5rem; }
   }
   .book-scene {
+    display: block;
     position: relative;
     width: var(--bw, 58px);
     height: var(--bh, 87px);
@@ -232,6 +233,7 @@
     -webkit-user-select: none;
   }
   .book {
+    display: block;
     position: relative;
     width: 100%; height: 100%;
     transform-style: preserve-3d;
@@ -252,14 +254,6 @@
   }
   .book-front.img { padding: 0; }
   .book-front.img img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-  .book-front .mark { font-size: 1.05rem; line-height: 1; }
-  .book-front .wordmark {
-    font-size: 0.44rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    line-height: 1.35;
-    opacity: 0.9;
-  }
   .book-spine {
     position: absolute; top: 0; left: calc(50% - 9px);
     width: 18px; height: 100%;
@@ -450,48 +444,6 @@
           <span class="book-ground"></span>
         </span>
         <span><span class="title">Jasanse</span><br/><span class="sub">Customs copilot for importers</span></span>
-      </a>
-      <a class="shelf-item" href="#">
-        <span class="book-scene" style="--bw:58px;--bh:87px">
-          <span class="book">
-            <span class="book-front" style="background:linear-gradient(160deg,#232f4e,#161f38)">
-              <span class="mark serif">&Phi;</span>
-              <span class="wordmark">Philo<br/>Battle</span>
-            </span>
-            <span class="book-spine" style="background:linear-gradient(160deg,#232f4e,#161f38)"></span>
-            <span class="book-pages"></span>
-          </span>
-          <span class="book-ground"></span>
-        </span>
-        <span><span class="title">PhiloBattle</span><br/><span class="sub">Debates between thinkers, judged by AI</span></span>
-      </a>
-      <a class="shelf-item" href="#">
-        <span class="book-scene" style="--bw:58px;--bh:87px">
-          <span class="book">
-            <span class="book-front" style="background:linear-gradient(160deg,#22473a,#132b22)">
-              <span class="mark">%</span>
-              <span class="wordmark">Renta<br/>Immo</span>
-            </span>
-            <span class="book-spine" style="background:linear-gradient(160deg,#22473a,#132b22)"></span>
-            <span class="book-pages"></span>
-          </span>
-          <span class="book-ground"></span>
-        </span>
-        <span><span class="title">Renta Immo</span><br/><span class="sub">Rental yield analysis in one click</span></span>
-      </a>
-      <a class="shelf-item" href="https://clubdivorce.fr" target="_blank" rel="noopener">
-        <span class="book-scene" style="--bw:58px;--bh:87px">
-          <span class="book">
-            <span class="book-front" style="background:linear-gradient(160deg,#5e3038,#3c1c22)">
-              <span class="mark serif">&amp;</span>
-              <span class="wordmark">Divorce<br/>Club</span>
-            </span>
-            <span class="book-spine" style="background:linear-gradient(160deg,#5e3038,#3c1c22)"></span>
-            <span class="book-pages"></span>
-          </span>
-          <span class="book-ground"></span>
-        </span>
-        <span><span class="title">Divorce Club</span><br/><span class="sub">French media about separation</span></span>
       </a>
     </div>
   </section>
