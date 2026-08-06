@@ -9,9 +9,23 @@
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://domgiancani.com"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2246%22 fill=%22%230a0a0a%22/></svg>"/>
+<meta name="theme-color" content="#ffffff"/>
 <title>Dominique Giancani</title>
+<script>
+  /* applique les preferences avant le premier rendu (pas de flash) */
+  (function () {
+    var d = document.documentElement, t, s;
+    try { t = localStorage.getItem("theme"); s = localStorage.getItem("sound"); } catch (e) {}
+    if (t === "dark" || t === "light") d.setAttribute("data-theme", t);
+    if (!s) {
+      s = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on";
+    }
+    d.setAttribute("data-sound", s);
+  })();
+</script>
 <style>
   :root {
+    color-scheme: light;
     --bg: #ffffff;
     --ink: #0a0a0a;
     --muted: #a3a3a3;
@@ -21,8 +35,10 @@
     --pages-b: #f3eee0;
     --pages-c: #e6dfcc;
     --shadow: rgba(0, 0, 0, 0.18);
+    --logo-mono: none;
   }
   :root[data-theme="light"] {
+    color-scheme: light;
     --bg: #ffffff;
     --ink: #0a0a0a;
     --muted: #a3a3a3;
@@ -32,17 +48,36 @@
     --pages-b: #f3eee0;
     --pages-c: #e6dfcc;
     --shadow: rgba(0, 0, 0, 0.18);
+    --logo-mono: none;
   }
   :root[data-theme="dark"] {
-    --bg: #ffffff;
-    --ink: #0a0a0a;
-    --muted: #a3a3a3;
-    --muted-hover: #666666;
-    --faint: #d9d9d9;
-    --pages-a: #ddd6c3;
-    --pages-b: #f3eee0;
-    --pages-c: #e6dfcc;
-    --shadow: rgba(0, 0, 0, 0.18);
+    color-scheme: dark;
+    --bg: #0b0b0b;
+    --ink: #ededed;
+    --muted: #7a7a7a;
+    --muted-hover: #b5b5b5;
+    --faint: #3a3a3a;
+    --pages-a: #4a4436;
+    --pages-b: #5c5545;
+    --pages-c: #524b3c;
+    --shadow: rgba(0, 0, 0, 0.6);
+    --logo-mono: invert(1);
+  }
+  /* sans choix explicite, on suit le systeme */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      color-scheme: dark;
+      --bg: #0b0b0b;
+      --ink: #ededed;
+      --muted: #7a7a7a;
+      --muted-hover: #b5b5b5;
+      --faint: #3a3a3a;
+      --pages-a: #4a4436;
+      --pages-b: #5c5545;
+      --pages-c: #524b3c;
+      --shadow: rgba(0, 0, 0, 0.6);
+      --logo-mono: invert(1);
+    }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -289,9 +324,85 @@
   .section-head:hover .ph-slide { animation: ph-slide 0.5s ease-in-out; }
   .logo { width: 15px; height: 15px; border-radius: 3px; margin-right: 0.55rem; flex: none; object-fit: contain; }
   .tl-logo { width: 14px; height: 14px; border-radius: 3px; object-fit: contain; vertical-align: -2px; margin-right: 0.4rem; }
+  /* logos monochromes noirs : a inverser sur fond sombre */
+  .logo-mono { filter: var(--logo-mono); }
+
+  /* ---- controles theme / son ---- */
+  .controls {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.15rem;
+    z-index: 10;
+  }
+  .ctrl {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--muted);
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color 0.15s ease-in-out;
+  }
+  .ctrl:hover, .ctrl:focus-visible { color: var(--ink); }
+  .ctrl:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+  .ctrl svg { width: 1rem; height: 1rem; display: block; }
+  .ctrl .stroke {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* le son n'existe pas au survol sur tactile : on masque le bouton */
+  @media (hover: none), (pointer: coarse) {
+    .ctrl-sound { display: none; }
+  }
+  :root[data-theme="dark"] .i-moon { display: none; }
+  :root:not([data-theme="dark"]) .i-sun { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .i-moon { display: none; }
+    :root:not([data-theme]) .i-sun { display: block; }
+  }
+  :root[data-sound="off"] .i-sound-on { display: none; }
+  :root:not([data-sound="off"]) .i-sound-off { display: none; }
+
+  html, body { transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out; }
+  @media (prefers-reduced-motion: reduce) {
+    html, body { transition: none; }
+  }
 </style>
 </head>
 <body>
+<div class="controls">
+  <button class="ctrl ctrl-sound" id="sound-toggle" type="button" aria-pressed="true" aria-label="Hover sound" title="Hover sound">
+    <svg class="i-sound-on" viewBox="0 0 24 24" aria-hidden="true">
+      <path class="stroke" d="M11 5L6 9H2v6h4l5 4V5z"/>
+      <path class="stroke" d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>
+    <svg class="i-sound-off" viewBox="0 0 24 24" aria-hidden="true">
+      <path class="stroke" d="M11 5L6 9H2v6h4l5 4V5z"/>
+      <path class="stroke" d="M22 9l-5 5M17 9l5 5"/>
+    </svg>
+  </button>
+  <button class="ctrl ctrl-theme" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Theme">
+    <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true">
+      <path class="stroke" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true">
+      <circle class="stroke" cx="12" cy="12" r="4.5"/>
+      <path class="stroke" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>
+  </button>
+</div>
 <main>
   <header>
     <div class="reveal d1">
@@ -311,7 +422,7 @@
         <span class="desc">Doing cool things for M&amp;A.</span>
       </a>
       <a class="item" href="https://fabriquestudio.fr" target="_blank" rel="noopener">
-        <span class="name"><img class="logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='%23111110'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Ccircle cx='12' cy='5.4' r='3'/%3E%3Ccircle cx='17.72' cy='8.7' r='3'/%3E%3Ccircle cx='17.72' cy='15.3' r='3'/%3E%3Ccircle cx='12' cy='18.6' r='3'/%3E%3Ccircle cx='6.28' cy='15.3' r='3'/%3E%3Ccircle cx='6.28' cy='8.7' r='3'/%3E%3C/g%3E%3C/svg%3E" alt="" width="15" height="15"/>Fabrique Studio<svg class="icon arrow-reveal" viewBox="0 0 256 256" aria-hidden="true"><path d="M204,64V168a12,12,0,0,1-24,0V93L72.49,200.49a12,12,0,0,1-17-17L163,76H88a12,12,0,0,1,0-24H192A12,12,0,0,1,204,64Z"/></svg></span>
+        <span class="name"><img class="logo logo-mono" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='%23111110'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Ccircle cx='12' cy='5.4' r='3'/%3E%3Ccircle cx='17.72' cy='8.7' r='3'/%3E%3Ccircle cx='17.72' cy='15.3' r='3'/%3E%3Ccircle cx='12' cy='18.6' r='3'/%3E%3Ccircle cx='6.28' cy='15.3' r='3'/%3E%3Ccircle cx='6.28' cy='8.7' r='3'/%3E%3C/g%3E%3C/svg%3E" alt="" width="15" height="15"/>Fabrique Studio<svg class="icon arrow-reveal" viewBox="0 0 256 256" aria-hidden="true"><path d="M204,64V168a12,12,0,0,1-24,0V93L72.49,200.49a12,12,0,0,1-17-17L163,76H88a12,12,0,0,1,0-24H192A12,12,0,0,1,204,64Z"/></svg></span>
         <span class="desc">Marketing. Shipping the website and a marketing engine on free time.</span>
       </a>
       <div class="item">
@@ -328,7 +439,7 @@
     <div class="reveal d7">
       <div class="tl-row">
         <span class="tl-year">2025</span>
-        <span class="tl-what"><img class="tl-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAARGVYSWZNTQAqAAAACAABh2kABAAAAAEAAAAaAAAAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAAAooAMABAAAAAEAAAAoAAAAAHrmZqwAAAHLaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA2LjAuMCI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vZXhpZi8xLjAvIj4KICAgICAgICAgPGV4aWY6Q29sb3JTcGFjZT4xPC9leGlmOkNvbG9yU3BhY2U+CiAgICAgICAgIDxleGlmOlBpeGVsWERpbWVuc2lvbj4xOTI8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+MTkyPC9leGlmOlBpeGVsWURpbWVuc2lvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+CvuZuMsAAAKvSURBVFgJ7Zi7rw1BHMePtw7RSQgFEiWNRItCEFEJlVbhj5FQ3FYiEhJyvRItobgJDaIQLonrESLE+/35OGcue3d2d2bP2WjOL/mc3Zn9Pb4zZ2bPnu31xjaegf87A/Myyq/Edxmkxuj3AZ7DGlgEvwa85fgaRmK7yXIBZsCCqXzE9ywshntgO8Say5zmbm1LiZyAMOo2x4vEK/BRTR5rWCvL/HqGFeeAnCUFPoS6AVordeng2uvtgbqEqdfOk2cBPEjIZ82SzS/19EdyJNLfpusJQT/gWUKwNUuzGBPobt2ckDDF5erAKRzrYqxp7UZbj8cnSP0aq/xukiMs/tWcv2jIaU1rN9oGPIYV+IocW+ZUOkD7G1QNyJrWbrSNeNQlqioQ+u8Qv62iykH6XY/B99+jNa1dsIWFVr+h4zQs6TeTPr/j5a1kEk7CG4jZKTqvw2HYAavAXa7QL/AVClbaNVy1L6ydgnNNw0EpMtf8+VOgpkgFepy12Aw6qmNgcKo5+vtwBW40BJl3J2yHtaAGRTnIo/AUas11YEAbnMXT4CBj5q3kGlTlLq3BWBJ30rC7+DY55orcSt9LqBKXvItHIVARZyD8ECzn/G6NOP2jAkMCro/c9pPRWdMOwaY/Z5kfXQo0996Bnn2ZumbduxRoERe9u3SdjTbWtUBv9grMuWUVxtG1QBe/Fo79VsZn1wIzpMRdxwLj85LeG5vBn4S3XjPppaOepboxgT4qvYuGd9tpzdJjWkyg//inutUSzX6L3tLbhphAo49Dabq90KGdIHdWzSDSoLZcItaH3+mGHBNcjz08011t/goMK/IyORT4GKoGqbjcJ3hC/touTidhBnwB5GNRCp/xOwcW92m71cujnGn1T/UKqFq3XCqYud+DA+v09Vuh6rgxnoERz8Bv3S53t19nJ2QAAAAASUVORK5CYII=" alt=""/>Launched and sold Forge<span class="sub2">Company sourcing for M&amp;A professionals.</span></span>
+        <span class="tl-what"><img class="tl-logo logo-mono" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAARGVYSWZNTQAqAAAACAABh2kABAAAAAEAAAAaAAAAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAAAooAMABAAAAAEAAAAoAAAAAHrmZqwAAAHLaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA2LjAuMCI+CiAgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vZXhpZi8xLjAvIj4KICAgICAgICAgPGV4aWY6Q29sb3JTcGFjZT4xPC9leGlmOkNvbG9yU3BhY2U+CiAgICAgICAgIDxleGlmOlBpeGVsWERpbWVuc2lvbj4xOTI8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+MTkyPC9leGlmOlBpeGVsWURpbWVuc2lvbj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+CvuZuMsAAAKvSURBVFgJ7Zi7rw1BHMePtw7RSQgFEiWNRItCEFEJlVbhj5FQ3FYiEhJyvRItobgJDaIQLonrESLE+/35OGcue3d2d2bP2WjOL/mc3Zn9Pb4zZ2bPnu31xjaegf87A/Myyq/Edxmkxuj3AZ7DGlgEvwa85fgaRmK7yXIBZsCCqXzE9ywshntgO8Say5zmbm1LiZyAMOo2x4vEK/BRTR5rWCvL/HqGFeeAnCUFPoS6AVordeng2uvtgbqEqdfOk2cBPEjIZ82SzS/19EdyJNLfpusJQT/gWUKwNUuzGBPobt2ckDDF5erAKRzrYqxp7UZbj8cnSP0aq/xukiMs/tWcv2jIaU1rN9oGPIYV+IocW+ZUOkD7G1QNyJrWbrSNeNQlqioQ+u8Qv62iykH6XY/B99+jNa1dsIWFVr+h4zQs6TeTPr/j5a1kEk7CG4jZKTqvw2HYAavAXa7QL/AVClbaNVy1L6ydgnNNw0EpMtf8+VOgpkgFepy12Aw6qmNgcKo5+vtwBW40BJl3J2yHtaAGRTnIo/AUas11YEAbnMXT4CBj5q3kGlTlLq3BWBJ30rC7+DY55orcSt9LqBKXvItHIVARZyD8ECzn/G6NOP2jAkMCro/c9pPRWdMOwaY/Z5kfXQo0996Bnn2ZumbduxRoERe9u3SdjTbWtUBv9grMuWUVxtG1QBe/Fo79VsZn1wIzpMRdxwLj85LeG5vBn4S3XjPppaOepboxgT4qvYuGd9tpzdJjWkyg//inutUSzX6L3tLbhphAo49Dabq90KGdIHdWzSDSoLZcItaH3+mGHBNcjz08011t/goMK/IyORT4GKoGqbjcJ3hC/touTidhBnwB5GNRCp/xOwcW92m71cujnGn1T/UKqFq3XCqYud+DA+v09Vuh6rgxnoERz8Bv3S53t19nJ2QAAAAASUVORK5CYII=" alt=""/>Launched and sold Forge<span class="sub2">Company sourcing for M&amp;A professionals.</span></span>
       </div>
       <div class="tl-row">
         <span class="tl-year">2020&ndash;2024</span>
@@ -432,16 +543,13 @@
   })();
 </script>
 <script>
-  /* ---- tick discret au survol ---- */
+  /* ---- controles : theme, son, tick au survol ---- */
   (function () {
+    var root = document.documentElement;
     var canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    var quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!canHover || quiet) return;
-
     var Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
 
-    var ctx, noise, unlocked = false;
+    var ctx, noise;
 
     function build() {
       ctx = new Ctx();
@@ -452,17 +560,19 @@
       for (var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
     }
 
+    function soundOn() { return root.getAttribute("data-sound") !== "off"; }
+
     function unlock() {
-      if (unlocked) return;
-      unlocked = true;
+      if (!Ctx || !soundOn()) return;
       if (!ctx) build();
       if (ctx.state === "suspended") ctx.resume();
     }
     // les navigateurs n'autorisent le son qu'apres une interaction reelle
-    document.addEventListener("pointerdown", unlock, { once: true, passive: true });
-    document.addEventListener("keydown", unlock, { once: true });
+    document.addEventListener("pointerdown", unlock, { passive: true });
+    document.addEventListener("keydown", unlock);
 
     function tick() {
+      if (!soundOn()) return;
       if (!ctx || ctx.state !== "running") return;
       var t = ctx.currentTime;
 
@@ -499,23 +609,85 @@
       osc.stop(t + 0.04);
     }
 
-    var SEL = "a, .item, .shelf-item, .section-head";
-    var last = null, lastTime = 0;
+    // clic sur un bouton = geste utilisateur, on peut debloquer puis confirmer
+    function feedback() {
+      if (!canHover || !Ctx || !soundOn()) return;
+      if (!ctx) build();
+      if (ctx.state === "suspended") ctx.resume().then(tick, function () {});
+      else tick();
+    }
 
-    document.addEventListener("pointerover", function (e) {
-      if (e.pointerType && e.pointerType !== "mouse") return;
-      var el = e.target.closest ? e.target.closest(SEL) : null;
-      if (!el || el === last) return;
-      last = el;
-      var now = performance.now();
-      if (now - lastTime < 70) return; // pas de mitraillette en balayant la page
-      lastTime = now;
-      tick();
-    }, { passive: true });
+    /* --- survol --- */
+    if (canHover) {
+      var SEL = "a, .item, .shelf-item, .section-head, .ctrl";
+      var last = null, lastTime = 0;
 
-    document.addEventListener("pointerout", function (e) {
-      if (!e.relatedTarget) last = null;
-    }, { passive: true });
+      document.addEventListener("pointerover", function (e) {
+        if (e.pointerType && e.pointerType !== "mouse") return;
+        var el = e.target.closest ? e.target.closest(SEL) : null;
+        if (!el || el === last) return;
+        last = el;
+        var now = performance.now();
+        if (now - lastTime < 70) return; // pas de mitraillette en balayant la page
+        lastTime = now;
+        tick();
+      }, { passive: true });
+
+      document.addEventListener("pointerout", function (e) {
+        if (!e.relatedTarget) last = null;
+      }, { passive: true });
+    }
+
+    /* --- bouton son --- */
+    var soundBtn = document.getElementById("sound-toggle");
+
+    function syncSound() {
+      if (!soundBtn) return;
+      var on = soundOn();
+      soundBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      soundBtn.title = on ? "Hover sound: on" : "Hover sound: off";
+    }
+    syncSound();
+
+    if (soundBtn) {
+      soundBtn.addEventListener("click", function () {
+        var next = soundOn() ? "off" : "on";
+        root.setAttribute("data-sound", next);
+        try { localStorage.setItem("sound", next); } catch (e) {}
+        syncSound();
+        feedback();
+      });
+    }
+
+    /* --- bouton theme --- */
+    var themeBtn = document.getElementById("theme-toggle");
+    var metaTheme = document.querySelector('meta[name="theme-color"]');
+    var sysDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function isDark() {
+      var t = root.getAttribute("data-theme");
+      return t ? t === "dark" : sysDark.matches;
+    }
+    function syncTheme() {
+      var dark = isDark();
+      if (metaTheme) metaTheme.setAttribute("content", dark ? "#0b0b0b" : "#ffffff");
+      if (themeBtn) {
+        themeBtn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+        themeBtn.title = dark ? "Light mode" : "Dark mode";
+      }
+    }
+    syncTheme();
+    if (sysDark.addEventListener) sysDark.addEventListener("change", syncTheme);
+
+    if (themeBtn) {
+      themeBtn.addEventListener("click", function () {
+        var next = isDark() ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem("theme", next); } catch (e) {}
+        syncTheme();
+        feedback();
+      });
+    }
   })();
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
