@@ -431,6 +431,93 @@
     }, 1400);
   })();
 </script>
+<script>
+  /* ---- tick discret au survol ---- */
+  (function () {
+    var canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    var quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!canHover || quiet) return;
+
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+
+    var ctx, noise, unlocked = false;
+
+    function build() {
+      ctx = new Ctx();
+      // petit buffer de bruit blanc, reutilise a chaque tick
+      var len = Math.floor(ctx.sampleRate * 0.03);
+      noise = ctx.createBuffer(1, len, ctx.sampleRate);
+      var data = noise.getChannelData(0);
+      for (var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    }
+
+    function unlock() {
+      if (unlocked) return;
+      unlocked = true;
+      if (!ctx) build();
+      if (ctx.state === "suspended") ctx.resume();
+    }
+    // les navigateurs n'autorisent le son qu'apres une interaction reelle
+    document.addEventListener("pointerdown", unlock, { once: true, passive: true });
+    document.addEventListener("keydown", unlock, { once: true });
+
+    function tick() {
+      if (!ctx || ctx.state !== "running") return;
+      var t = ctx.currentTime;
+
+      var out = ctx.createGain();
+      out.gain.value = 0.05;
+      out.connect(ctx.destination);
+
+      // corps du clic : bruit filtre, tres court
+      var src = ctx.createBufferSource();
+      src.buffer = noise;
+      var bp = ctx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.value = 2400;
+      bp.Q.value = 1.4;
+      var ng = ctx.createGain();
+      ng.gain.setValueAtTime(0.0001, t);
+      ng.gain.exponentialRampToValueAtTime(1, t + 0.002);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.028);
+      src.connect(bp).connect(ng).connect(out);
+      src.start(t);
+      src.stop(t + 0.03);
+
+      // touche de bois pour arrondir l'attaque
+      var osc = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(1500, t);
+      osc.frequency.exponentialRampToValueAtTime(700, t + 0.03);
+      var og = ctx.createGain();
+      og.gain.setValueAtTime(0.0001, t);
+      og.gain.exponentialRampToValueAtTime(0.5, t + 0.002);
+      og.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+      osc.connect(og).connect(out);
+      osc.start(t);
+      osc.stop(t + 0.04);
+    }
+
+    var SEL = "a, .item, .shelf-item, .section-head";
+    var last = null, lastTime = 0;
+
+    document.addEventListener("pointerover", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      var el = e.target.closest ? e.target.closest(SEL) : null;
+      if (!el || el === last) return;
+      last = el;
+      var now = performance.now();
+      if (now - lastTime < 70) return; // pas de mitraillette en balayant la page
+      lastTime = now;
+      tick();
+    }, { passive: true });
+
+    document.addEventListener("pointerout", function (e) {
+      if (!e.relatedTarget) last = null;
+    }, { passive: true });
+  })();
+</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
